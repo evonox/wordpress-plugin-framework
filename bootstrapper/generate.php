@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * 1. AUTOLOAD
+ * 2. PACKAGES
+ * 3. DEPENDENCY INJECTION
+ * 4. BASE FRAMEWORK
+ */

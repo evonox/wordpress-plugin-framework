@@ -1,0 +1,8 @@
+{
+    "files.eol": "\n",
+    "editor.insertFinalNewline": true,
+    "files.insertFinalNewline": true,
+    "phpcs.enable": true, 
+    "phpcs.standard": "PSR12", 
+    "phpcs.executablePath": "vendor\\bin\\phpcs.bat"
+}
