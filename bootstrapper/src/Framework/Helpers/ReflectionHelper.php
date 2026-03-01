@@ -12,7 +12,7 @@ use ReflectionProperty;
 
 class ReflectionHelper
 {
-    public static function getParamType(ReflectionMethod $method, int $paramIndex): string
+    public static function getParameterType(ReflectionMethod $method, int $paramIndex): string
     {
         $parameters = $method->getParameters();
         if (isset($parameters[$paramIndex]) === false) {
@@ -26,7 +26,7 @@ class ReflectionHelper
         return (string)$type;
     }
 
-    public static function getMethod(stdClass $instance, string $methodName): ReflectionMethod
+    public static function getMethod(object $instance, string $methodName): ReflectionMethod|false
     {
         $reflection = new ReflectionClass($instance);
         $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
@@ -36,7 +36,7 @@ class ReflectionHelper
             }
         }
 
-        throw new \Exception("ReflectionError: $methodName is not defined on the instance.");
+        return false;
     }
 
     /**
@@ -71,17 +71,17 @@ class ReflectionHelper
      */
     public static function getInstanceMethods(string $className): array
     {
-        $reflection = new \ReflectionClass($className);
+        $reflection = new ReflectionClass($className);
 
-        $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+        $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC);
         return array_filter($methods, function ($method) {
             return $method->isStatic() === false;
         });
     }
 
-    public static function getClassAttribute(string $className, string $attributeName): stdClass|false
+    public static function getClassAttribute(string $className, string $attributeName): object|false
     {
-        $reflection = new \ReflectionClass($className);
+        $reflection = new ReflectionClass($className);
         $attributes = $reflection->getAttributes();
 
         foreach ($attributes as $attr) {
@@ -94,7 +94,7 @@ class ReflectionHelper
         return false;
     }
 
-    public static function getPropertyAttribute(ReflectionProperty $property, string $attributeName): stdClass|false
+    public static function getPropertyAttribute(ReflectionProperty $property, string $attributeName): object|false
     {
         $attributes = $property->getAttributes();
 
@@ -122,7 +122,7 @@ class ReflectionHelper
         return false;
     }
 
-    public static function getParameterAttribute(ReflectionParameter $parameter, string $attributeName): stdClass|false
+    public static function getParameterAttribute(ReflectionParameter $parameter, string $attributeName): object|false
     {
         $attributes = $parameter->getAttributes();
 
