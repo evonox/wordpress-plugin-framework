@@ -6,7 +6,6 @@ use __PLUGIN__\Framework\Helpers\ReflectionHelper;
 use __PLUGIN__\Framework\Attributes\PostConstruct;
 use __PLUGIN__\Framework\Attributes\Inject;
 use Exception;
-use stdClass;
 
 class DIHelper
 {
@@ -39,20 +38,32 @@ class DIHelper
     /**
      * @return array<string>
      */
-    public static function getPropertyInjectionTypes(stdClass $instance): array
+    public static function getPropertyInjectionTypes(object $instance): array
     {
         $propertyMap = [];
         $properties = ReflectionHelper::getInstanceProperties(get_class($instance));
         foreach ($properties as $property) {
             $attribute = ReflectionHelper::getPropertyAttribute($property, Inject::class);
             if ($attribute !== false) {
-                $propertyMap[$property->getName()] = $attribute->identifier;
+                $identifier = $attribute->identifier;
+                if (is_null($identifier)) {
+                    $type = $property->getType();
+                    if (is_null($type)) {
+                        throw new Exception(
+                            "Property '{$property->getName()}' has missing type annotation in class '"
+                            . get_class($instance) . "'."
+                        );
+                    }
+                    $propertyMap[$property->getName()] = strval($type);
+                } else {
+                    $propertyMap[$property->getName()] = $attribute->identifier;
+                }
             }
         }
         return $propertyMap;
     }
 
-    public static function getPostConstructMethod(stdClass $instance): string|null
+    public static function getPostConstructMethod(object $instance): string|null
     {
         $methods = ReflectionHelper::getInstanceMethods(get_class($instance));
         foreach ($methods as $method) {
