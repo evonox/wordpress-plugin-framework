@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Plugin Name:       Wordpress Plugin Framework Demo
  * Plugin URI:        https://github.com/evonox/wp-plugin-framework.git
@@ -10,7 +11,7 @@
  * License URI:       https://opensource.org/license/mit
  */
 
-if(! defined("ABSPATH")) {
+if (! defined("ABSPATH")) {
     exit;
 }
 
