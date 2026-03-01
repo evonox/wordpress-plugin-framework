@@ -7,6 +7,8 @@ use ReflectionClass;
 use ReflectionMethod;
 use Exception;
 use Attribute;
+use ReflectionParameter;
+use ReflectionProperty;
 
 class ReflectionHelper
 {
@@ -38,6 +40,33 @@ class ReflectionHelper
     }
 
     /**
+     * @return array<ReflectionParameter>
+     */
+    public static function getConstructorParameters(string $className): array
+    {
+        $reflectionClass = new ReflectionClass($className);
+        $constructor = $reflectionClass->getConstructor();
+        if ($constructor === null) {
+            return [];
+        } else {
+            return $constructor->getParameters();
+        }
+    }
+
+    /**
+     * @return array<ReflectionProperty>
+     */
+    public static function getInstanceProperties(string $className): array
+    {
+        $reflection = new \ReflectionClass($className);
+
+        $methods = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+        return array_filter($methods, function ($method) {
+            return $method->isStatic() === false;
+        });
+    }
+
+    /**
      * @return array<ReflectionMethod>
      */
     public static function getInstanceMethods(string $className): array
@@ -50,7 +79,7 @@ class ReflectionHelper
         });
     }
 
-    public static function getClassAttribute(string $className, string $attributeName): Attribute|false
+    public static function getClassAttribute(string $className, string $attributeName): stdClass|false
     {
         $reflection = new \ReflectionClass($className);
         $attributes = $reflection->getAttributes();
@@ -65,9 +94,37 @@ class ReflectionHelper
         return false;
     }
 
-    public static function getMethodAttribute(ReflectionMethod $method, string $attributeName): Attribute|false
+    public static function getPropertyAttribute(ReflectionProperty $property, string $attributeName): stdClass|false
+    {
+        $attributes = $property->getAttributes();
+
+        foreach ($attributes as $attr) {
+            if ($attr->getName() === $attributeName) {
+                $attrInstance = $attr->newInstance();
+                return $attrInstance;
+            }
+        }
+
+        return false;
+    }
+
+    public static function getMethodAttribute(ReflectionMethod $method, string $attributeName): object|false
     {
         $attributes = $method->getAttributes();
+
+        foreach ($attributes as $attr) {
+            if ($attr->getName() === $attributeName) {
+                $attrInstance = $attr->newInstance();
+                return $attrInstance;
+            }
+        }
+
+        return false;
+    }
+
+    public static function getParameterAttribute(ReflectionParameter $parameter, string $attributeName): stdClass|false
+    {
+        $attributes = $parameter->getAttributes();
 
         foreach ($attributes as $attr) {
             if ($attr->getName() === $attributeName) {

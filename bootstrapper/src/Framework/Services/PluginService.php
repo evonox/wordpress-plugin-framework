@@ -5,21 +5,30 @@ namespace __PLUGIN__\Framework\Services;
 use __PLUGIN__\Framework\Attributes\WPFilter;
 use __PLUGIN__\Framework\Attributes\WPAction;
 use __PLUGIN__\Framework\Helpers\ReflectionHelper;
+use __PLUGIN__\Framework\DI\Container;
+use ReflectionMethod;
 
 class PluginService
 {
+    /** @var array<string> */
     private static array $hookHandlers = [];
     private static PluginService|null $serviceInstance = null;
 
     public static function bootService(): void
     {
         self::registerStaticHooks();
-        if (method_exists(static::class, "registerDynamicHooks")) {
-            call_user_func([static::class, 'registerDynamicHooks']);
+
+        $className = static::class;
+        $methodName = "registerDynamicHooks";
+        if (method_exists($className, $methodName)) {
+            $className::$methodName();
         }
     }
 
-    public static function __callStatic($name, $args): mixed
+    /**
+     * @param array<mixed> $args
+     */
+    public static function __callStatic(string $name, array $args): mixed
     {
         if (strpos($name, "hook_handler_") === 0) {
             $hookName = str_replace("hook_handler_", "", $name);
@@ -33,11 +42,13 @@ class PluginService
         }
     }
 
+    /**
+     * @param array<mixed> $args
+     */
     private static function invokeHandler(string $methodName, array $args): mixed
     {
         if (is_null(self::$serviceInstance)) {
-            self::$serviceInstance = null;
-            // self::$serviceInstance = Container::resolve(static::class);
+            self::$serviceInstance = Container::get()->make(static::class);
         }
 
         if (method_exists(self::$serviceInstance, $methodName)) {
@@ -48,24 +59,26 @@ class PluginService
     }
 
 
-    private static function registerStaticHooks()
+    private static function registerStaticHooks(): void
     {
         $methods = ReflectionHelper::getInstanceMethods(static::class);
 
         foreach ($methods as $method) {
             $actionAttr = ReflectionHelper::getMethodAttribute($method, WPAction::class);
             if ($actionAttr !== false) {
+                /** @var WPAction $actionAttr */
                 self::registerAction($method, $actionAttr);
             }
 
             $filterAttr = ReflectionHelper::getMethodAttribute($method, WPFilter::class);
             if ($filterAttr !== false) {
+                /** @var WPFilter $filterAttr */
                 self::registerFilter($method, $filterAttr);
             }
         }
     }
 
-    private static function registerAction($method, $actionAttr): void
+    private static function registerAction(ReflectionMethod $method, WPAction $actionAttr): void
     {
         $actionName = $actionAttr->actionName;
         $actionPriority = $actionAttr->priority;
@@ -78,7 +91,7 @@ class PluginService
         add_action($actionName, [static::class, $staticHandlerName], $actionPriority, $parameterCount);
     }
 
-    private function registerFilter($method, $filterAttr): void
+    private static function registerFilter(ReflectionMethod $method, WPFilter $filterAttr): void
     {
         $filterName = $filterAttr->filterName;
         $filterPriority = $filterAttr->priority;
