@@ -29,7 +29,7 @@ class ReflectionHelperTest extends TestCase
     public function testMethodAttribute(): void
     {
         $methods = ReflectionHelper::getInstanceMethods(ClassA::class);
-        $attr = ReflectionHelper::getMethodAttribute($methods[0], WPAction::class);
+        $attr = ReflectionHelper::getMethodAttribute($methods[1], WPAction::class);
         $this->assertTrue($attr !== false);
         $this->assertTrue($attr instanceof WPAction);
     }
