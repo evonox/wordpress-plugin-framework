@@ -62,7 +62,7 @@ class BindingFluentBuilder implements ContainerBindInterface, ContainerScopeInte
         return $this;
     }
 
-    public function inSingleScoped(): void
+    public function isSingleScoped(): void
     {
         $this->scopeKind = ContainerScopeKind::Singleton;
         $this->insertBindingToRegistry();
