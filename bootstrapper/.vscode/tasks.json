@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PHPStan: Analyse whole repository",
+      "type": "shell",
+      "command": "vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=1G",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "PHPCS: Check whole repository",
+      "type": "shell",
+      "command": "vendor/bin/phpcs --standard=phpcs.xml .",
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}
