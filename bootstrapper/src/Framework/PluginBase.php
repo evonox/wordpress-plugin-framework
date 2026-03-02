@@ -3,6 +3,7 @@
 namespace __PLUGIN__\Framework;
 
 use __PLUGIN__\Framework\DI\Container;
+use __PLUGIN__\Framework\Helpers\CaseHelper;
 use __PLUGIN__\Framework\Helpers\ExtensionsHelper;
 use __PLUGIN__\Framework\Helpers\ReflectionHelper;
 use __PLUGIN__\Framework\Services\PluginService;
@@ -23,7 +24,7 @@ abstract class PluginBase extends PluginService
         if ($pluginPrefixAttr === false) {
             throw new \Exception("PluginMain Class is missing 'PluginPrefix' attribute.");
         }
-        $pluginPrefix = $pluginPrefixAttr->value;
+        $pluginPrefix = CaseHelper::toSnakeCase($pluginPrefixAttr->value);
 
         // 2. Initialize the DI container and bind the plugin prefix
         $container = Container::get();
