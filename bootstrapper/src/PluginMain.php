@@ -1,11 +1,11 @@
 <?php
 
-namespace __PLUGIN__\Plugin;
+namespace __PLUGIN__;
 
 use __PLUGIN__\Framework\Attributes\PluginPrefix;
 use __PLUGIN__\Framework\PluginBase;
 
-#[PluginPrefix("")]
+#[PluginPrefix("__PLUGIN__")]
 class PluginMain extends PluginBase
 {
     public function onActivate(): void

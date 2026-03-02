@@ -2,6 +2,7 @@
 
 namespace __PLUGIN__\Framework;
 
+use __PLUGIN__\Framework\DI\Container;
 use __PLUGIN__\Framework\Helpers\ReflectionHelper;
 use __PLUGIN__\Framework\Services\PluginService;
 use __PLUGIN__\Framework\Attributes\PluginPrefix;
@@ -21,19 +22,18 @@ abstract class PluginBase extends PluginService
         if ($pluginPrefixAttr === false) {
             throw new \Exception("PluginMain Class is missing 'PluginPrefix' attribute.");
         }
+        $pluginPrefix = $pluginPrefixAttr->prefix;
 
-        // 2. Initialize the DI container
-        /*
-        Container::init();
+        // 2. Initialize the DI container and bind the plugin prefix
         $container = Container::get();
-        $container->set("plugin-prefix", $pluginPrefix);
-        */
+        $container->bind("PluginPrefix")->toConstantValue($pluginPrefix);
 
         // 3. Boot the plugin and its registered services
         self::bootService();
-        $this->bootPluginServices();
+        // $this->bootPluginServices();
     }
 
+    // @phpstan-ignore method.unused
     private function bootPluginServices(): void
     {
         $serviceContainerPath = $this->getServiceContainerPath();

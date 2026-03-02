@@ -15,5 +15,7 @@ if (! defined("ABSPATH")) {
     exit;
 }
 
+require_once __DIR__ . "/vendor/autoload.php";
+
 define('__PLUGIN___MAIN_FILE_PATH', __FILE__);
-require_once __DIR__ . "/framework/bootstrap.php";
+require_once __DIR__ . "/Framework/bootstrap.php";
