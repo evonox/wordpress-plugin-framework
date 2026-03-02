@@ -36,14 +36,12 @@ function __PLUGIN___activation_hook(): void
 function __PLUGIN___deactivation_hook(): void
 {
     $plugin = new PluginMain();
-    $plugin->boot();
     $plugin->onDeactivate();
 }
 
 function __PLUGIN___uninstall_hook(): void
 {
     $plugin = new PluginMain();
-    $plugin->boot();
     $plugin->onUninstall();
 }
 

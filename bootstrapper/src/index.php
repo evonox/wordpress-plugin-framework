@@ -2,7 +2,7 @@
 
 /*
  * Plugin Name:       Wordpress Plugin Framework Demo
- * Plugin URI:        https://github.com/evonox/wp-plugin-framework.git
+ * Plugin URI:        https://github.com/evonox/wordpress-plugin-framework.git
  * Description:       Wordpress Plugin Framework Demo
  * Version:           1.0.0
  * Author:            Viktor Prehnal
