@@ -25,6 +25,12 @@ class Container implements ContainerInterface
         $this->registry = new ContainerBindingRegistry();
     }
 
+    public function clear(): void
+    {
+        $this->registry->clear();
+        $this->cache = [];
+    }
+
     public function isBound(string $identifier): bool
     {
         return $this->registry->isIdentifierBound($identifier);
@@ -38,6 +44,9 @@ class Container implements ContainerInterface
     public function unbind(string $identifier): void
     {
         $this->registry->unbindIdentifier($identifier);
+        if(isset($this->cache[$identifier])) {
+            unset($this->cache[$identifier]);
+        }
     }
 
     public function rebind(string $identifier): ContainerBindInterface
@@ -60,14 +69,14 @@ class Container implements ContainerInterface
         }
     }
 
-    public function make(string $className): stdClass
+    public function make(string $className): object
     {
         $constructorTypes = DIHelper::getConstructorInjectionTypes($className);
         $constructorValues = array_map(function (string $identifier) {
             return $this->resolve($identifier);
         }, $constructorTypes);
 
-        $instance = new $className($constructorValues);
+        $instance = new $className(...$constructorValues);
 
         $propertyInjectionTypes = DIHelper::getPropertyInjectionTypes($instance);
         foreach ($propertyInjectionTypes as $propertyName => $identifier) {
@@ -84,6 +93,10 @@ class Container implements ContainerInterface
 
     private function resolveValue(string $identifier, bool $addToCache): mixed
     {
+        if( $this->registry->isIdentifierBound($identifier) === false ) {
+            throw new \Exception("No binding found for identifier: " . $identifier);
+        }
+
         $bindingKind = $this->registry->getBindingKindForIdentifier($identifier);
         $value = $this->registry->getValueForIdentifier($identifier);
         $valueInstance = null;

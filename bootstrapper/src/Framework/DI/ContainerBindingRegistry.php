@@ -9,6 +9,11 @@ class ContainerBindingRegistry
     /** @var array<ContainerBinding> */
     private array $bindings = [];
 
+    public function clear(): void
+    {
+        $this->bindings = [];
+    }
+
     public function isIdentifierBound(string $identifier): bool
     {
         return $this->lookupValueForIdentifier($identifier) !== false;

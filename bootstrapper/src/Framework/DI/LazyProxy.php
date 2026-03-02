@@ -21,6 +21,16 @@ class LazyProxy
         return $this->instance;
     }
 
+    public function __get(string $name): mixed
+    {
+        return $this->getInstance()->{$name};
+    }
+
+    public function __set(string $name, mixed $value): void
+    {
+        $this->getInstance()->{$name} = $value;
+    }
+
     /**
      * @param array<mixed> $args
      */
