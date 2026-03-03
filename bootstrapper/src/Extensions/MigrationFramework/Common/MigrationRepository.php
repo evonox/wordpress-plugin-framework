@@ -14,7 +14,7 @@ class MigrationRepository
         global $wpdb;
         $tableName = $this->getMigrationTableName();
 
-        $sql = "CREATE TABLE IF NOT EXISTS `$tableName` (
+        $sql = "CREATE TABLE `$tableName` (
             `id` INT NOT NULL AUTO_INCREMENT,
             `plugin_name` VARCHAR(500) NOT NULL,
             `migration_name` VARCHAR(500) NOT NULL,

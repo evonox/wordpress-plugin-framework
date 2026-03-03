@@ -5,7 +5,6 @@ namespace Tests\MigrationFramework;
 use __PLUGIN__\Extensions\MigrationFramework\Common\MigrationRepository;
 use __PLUGIN__\Extensions\MigrationFramework\Common\MigrationRegistry;
 use __PLUGIN__\Framework\DI\Container;
-use __PLUGIN__\Framework\Helpers\ExtensionsHelper;
 use PHPUnit\Framework\TestCase;
 use Tests\Helper\MigrationA;
 use Tests\Helper\MigrationB;
