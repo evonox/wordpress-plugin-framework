@@ -1,5 +1,7 @@
 <?php
 
+use __PLUGIN__\Framework\Helpers\ExtensionsHelper;
+
 // @phpstan-ignore requireOnce.fileNotFound
 require_once "wp-load.php";
 require_once __DIR__ . "/../vendor/autoload.php";

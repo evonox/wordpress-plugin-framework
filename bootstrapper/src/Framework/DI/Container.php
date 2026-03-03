@@ -2,8 +2,6 @@
 
 namespace __PLUGIN__\Framework\DI;
 
-use stdClass;
-
 class Container implements ContainerInterface
 {
     private ContainerBindingRegistry $registry;
@@ -44,7 +42,7 @@ class Container implements ContainerInterface
     public function unbind(string $identifier): void
     {
         $this->registry->unbindIdentifier($identifier);
-        if(isset($this->cache[$identifier])) {
+        if (isset($this->cache[$identifier])) {
             unset($this->cache[$identifier]);
         }
     }
@@ -93,7 +91,7 @@ class Container implements ContainerInterface
 
     private function resolveValue(string $identifier, bool $addToCache): mixed
     {
-        if( $this->registry->isIdentifierBound($identifier) === false ) {
+        if ($this->registry->isIdentifierBound($identifier) === false) {
             throw new \Exception("No binding found for identifier: " . $identifier);
         }
 
