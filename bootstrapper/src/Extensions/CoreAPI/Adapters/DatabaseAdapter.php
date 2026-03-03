@@ -3,14 +3,9 @@
 namespace __PLUGIN__\Extensions\CoreAPI\Adapters;
 
 use __PLUGIN__\Extensions\CoreAPI\Interfaces\DatabaseAPI;
-use __PLUGIN__\Framework\Attributes\Inject;
 
-class DatabaseAdapter implements DatabaseAPI
+class DatabaseAdapter extends AdapterBase implements DatabaseAPI
 {
-    #[Inject("PluginPrefix")]
-    private string $pluginPrefix = "";
-
-    private const string NO_PREFIXING_TOKEN = "::";
     /**
      * @inheritDoc
      */
@@ -19,7 +14,8 @@ class DatabaseAdapter implements DatabaseAPI
         global $wpdb;
         $table = $this->escapeTableName($table);
         $format = $this->detectArgumentFormats($where, $format);
-        $wpdb->delete($table, $where, $format);
+        $result = $wpdb->delete($table, $where, $format);
+        self::verify($result, "Failed to delete from table: $table");
     }
 
     /**
@@ -53,7 +49,8 @@ class DatabaseAdapter implements DatabaseAPI
     {
         global $wpdb;
         $SQL = $wpdb->prepare($SQL, $args);
-        $wpdb->query($SQL);
+        $result = $wpdb->query($SQL);
+        self::verify($result, "Failed to execute query: $SQL");
     }
 
     /**
@@ -64,7 +61,8 @@ class DatabaseAdapter implements DatabaseAPI
         global $wpdb;
         $table = $this->escapeTableName($table);
         $format = $this->detectArgumentFormats($data, $format);
-        $wpdb->insert($table, $data, $format);
+        $result = $wpdb->insert($table, $data, $format);
+        self::verify($result, "Failed to insert into table: $table");
         return (int)$wpdb->insert_id;
     }
 
@@ -75,7 +73,9 @@ class DatabaseAdapter implements DatabaseAPI
     {
         global $wpdb;
         $SQL = $wpdb->prepare($SQL, $args);
-        return $wpdb->get_results($SQL, ARRAY_A);
+        $result = $wpdb->get_results($SQL, ARRAY_A);
+        self::verify($result, "Failed to execute query: $SQL");
+        return $result;
     }
 
     /**
@@ -87,7 +87,8 @@ class DatabaseAdapter implements DatabaseAPI
         $table = $this->escapeTableName($table);
         $dataFormat = $this->detectArgumentFormats($data, $format);
         $whereFormat = $this->detectArgumentFormats($where, $format);
-        $wpdb->update($table, $data, $where, $dataFormat, $whereFormat);
+        $result = $wpdb->update($table, $data, $where, $dataFormat, $whereFormat);
+        self::verify($result, "Failed to update table: $table");
     }
 
     /**
@@ -98,7 +99,8 @@ class DatabaseAdapter implements DatabaseAPI
         global $wpdb;
         $table = $this->escapeTableName($table);
         $format = $this->detectArgumentFormats($data, $format);
-        $wpdb->replace($table, $data, $format);
+        $result = $wpdb->replace($table, $data, $format);
+        self::verify($result, "Failed to upsert into table: $table");
     }
 
     /**
