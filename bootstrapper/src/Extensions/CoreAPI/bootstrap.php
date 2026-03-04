@@ -1,8 +1,10 @@
 <?php
 
 use __PLUGIN__\Extensions\CoreAPI\Adapters\DatabaseAdapter;
+use __PLUGIN__\Extensions\CoreAPI\Adapters\HttpClientAdapter;
 use __PLUGIN__\Extensions\CoreAPI\Adapters\OptionsAdapter;
 use __PLUGIN__\Extensions\CoreAPI\Interfaces\DatabaseAPI;
+use __PLUGIN__\Extensions\CoreAPI\Interfaces\HttpClient;
 use __PLUGIN__\Extensions\CoreAPI\Interfaces\OptionsAPI;
 use __PLUGIN__\Extensions\CoreAPI\Interfaces\TransientsAPI;
 use __PLUGIN__\Extensions\CoreAPI\Interfaces\MetadataAPI;
@@ -18,3 +20,4 @@ Container::get()->bind(DatabaseAPI::class)->toClass(DatabaseAdapter::class)->isS
 Container::get()->bind(OptionsAPI::class)->toClass(OptionsAdapter::class)->isSingleScoped();
 Container::get()->bind(TransientsAPI::class)->toClass(TransientsAdapter::class)->isSingleScoped();
 Container::get()->bind(MetadataAPI::class)->toClass(MetadataAdapter::class)->isSingleScoped();
+Container::get()->bind(HttpClient::class)->toClass(HttpClientAdapter::class)->isSingleScoped();

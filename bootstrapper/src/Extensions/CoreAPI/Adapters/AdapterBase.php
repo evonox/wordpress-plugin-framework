@@ -2,8 +2,8 @@
 
 namespace __PLUGIN__\Extensions\CoreAPI\Adapters;
 
+use __PLUGIN__\Extensions\CoreAPI\Exceptions\RuntimeApiException;
 use __PLUGIN__\Framework\Attributes\Inject;
-use Exception;
 
 abstract class AdapterBase
 {
@@ -14,7 +14,7 @@ abstract class AdapterBase
     protected static function verify(mixed $result, string $errorMessage): void
     {
         if ($result === false) {
-            throw new Exception($errorMessage);
+            throw new RuntimeApiException($errorMessage);
         }
     }
 
