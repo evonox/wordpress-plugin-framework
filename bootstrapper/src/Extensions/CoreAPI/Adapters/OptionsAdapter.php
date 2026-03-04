@@ -65,10 +65,7 @@ class OptionsAdapter extends AdapterBase implements OptionsAPI
      */
     public function prefixOptionName(string $optionName): string
     {
-        if (str_starts_with($optionName, self::NO_PREFIXING_TOKEN)) {
-            return substr($optionName, strlen(self::NO_PREFIXING_TOKEN));
-        }
-        return $this->pluginPrefix . "_" . $optionName;
+        return $this->prefixName($optionName);
     }
 
     /**

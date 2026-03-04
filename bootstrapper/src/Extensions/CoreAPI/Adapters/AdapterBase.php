@@ -17,4 +17,12 @@ abstract class AdapterBase
             throw new Exception($errorMessage);
         }
     }
+
+    protected function prefixName(string $name): string
+    {
+        if (str_starts_with($name, self::NO_PREFIXING_TOKEN)) {
+            return substr($name, strlen(self::NO_PREFIXING_TOKEN));
+        }
+        return $this->pluginPrefix . "_" . $name;
+    }
 }

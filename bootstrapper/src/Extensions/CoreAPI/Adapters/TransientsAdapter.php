@@ -77,9 +77,6 @@ class TransientsAdapter extends AdapterBase implements TransientsAPI
      */
     public function prefixTransientName(string $transientName): string
     {
-        if (str_starts_with($transientName, self::NO_PREFIXING_TOKEN)) {
-            return substr($transientName, strlen(self::NO_PREFIXING_TOKEN));
-        }
-        return $this->pluginPrefix . "_" . $transientName;
+        return $this->prefixName($transientName);
     }
 }

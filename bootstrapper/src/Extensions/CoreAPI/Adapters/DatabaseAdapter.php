@@ -33,11 +33,7 @@ class DatabaseAdapter extends AdapterBase implements DatabaseAPI
     public function escapeTableName(string $table): string
     {
         global $wpdb;
-        if (str_starts_with($table, self::NO_PREFIXING_TOKEN)) {
-            $table = substr($table, strlen(self::NO_PREFIXING_TOKEN));
-        } else {
-                $table = $this->pluginPrefix . "_" . $table;
-        }
+        $table = $this->prefixName($table);
         $table = $wpdb->prefix . $table;
         return $this->escapeIdentifier($table);
     }
