@@ -31,8 +31,7 @@ abstract class PluginBase extends PluginService
 
         // 2. Initialize the DI container and bind the plugin prefix
         $container = Container::get();
-        $container->bind("
-        ")->toConstantValue($pluginPrefix);
+        $container->bind("PluginPrefix")->toConstantValue($pluginPrefix);
 
         // 3. Boot framework extensions
         ExtensionsHelper::bootstrapExtensions();
