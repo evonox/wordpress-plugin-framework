@@ -15,7 +15,10 @@ abstract class PluginBase extends PluginService
     abstract public function onDeactivate(): void;
     abstract public function onUninstall(): void;
 
-    abstract protected function getServiceContainerPath(): string;
+    protected function getServiceContainerPath(): string
+    {
+        return dirname(__PLUGIN___MAIN_FILE_PATH) . "/" . "plugin-services.php";
+    }
 
     public function boot(): void
     {
@@ -28,20 +31,24 @@ abstract class PluginBase extends PluginService
 
         // 2. Initialize the DI container and bind the plugin prefix
         $container = Container::get();
-        $container->bind("PluginPrefix")->toConstantValue($pluginPrefix);
+        $container->bind("
+        ")->toConstantValue($pluginPrefix);
 
         // 3. Boot framework extensions
         ExtensionsHelper::bootstrapExtensions();
 
         // 4. Boot the plugin and its registered services
         self::bootService();
-        // $this->bootPluginServices();
+        $this->bootPluginServices();
     }
 
-    // @phpstan-ignore method.unused
     private function bootPluginServices(): void
     {
         $serviceContainerPath = $this->getServiceContainerPath();
+        if (! file_exists($serviceContainerPath)) {
+            trigger_error("File '$serviceContainerPath' not found", E_USER_WARNING);
+            return;
+        }
         $serviceNames = include $serviceContainerPath;
 
         foreach ($serviceNames as $serviceName) {
