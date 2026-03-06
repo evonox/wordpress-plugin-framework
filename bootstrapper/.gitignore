@@ -3,3 +3,4 @@
 /.phpunit.cache
 /build
 /node_modules
+/coverage
