@@ -4,7 +4,8 @@
     ],
     "mappings": {
         "wp-content/plugins/src/vendor": "./vendor",
-        "wp-content/plugins/src/tests": "./tests"
+        "wp-content/plugins/src/tests": "./tests",
+        "wp-content/plugins/src/tests-wp": "./tests-wp"
     },
     "phpVersion": "8.4",
     "config": {
