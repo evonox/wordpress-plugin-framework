@@ -71,13 +71,19 @@ class OptionsAdapter extends AdapterBase implements OptionsAPI
     /**
      * @inheritDoc
      */
-    public function setOption(string $optionName, mixed $value): void
+    public function setOption(string $optionName, mixed $value, bool $autoload = false): void
     {
         $prefixedOptionName = $this->prefixOptionName($optionName);
         if ($this->hasOption($optionName)) {
-            self::verify(update_option($prefixedOptionName, $value), "Failed to update option: $prefixedOptionName");
+            self::verify(
+                update_option($prefixedOptionName, $value, $autoload),
+                "Failed to update option: $prefixedOptionName"
+            );
         } else {
-            self::verify(add_option($prefixedOptionName, $value), "Failed to add option: $prefixedOptionName");
+            self::verify(
+                add_option($prefixedOptionName, $value, '', $autoload),
+                "Failed to add option: $prefixedOptionName"
+            );
         }
     }
 
