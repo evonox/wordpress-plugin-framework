@@ -9,6 +9,22 @@ class TransientsAdapter extends AdapterBase implements TransientsAPI
     /**
      * @inheritDoc
      */
+    public function existsTransient(string $transient_name): bool
+    {
+        return $this->getTransient($transient_name) !== false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsSiteTransient(string $transient_name): bool
+    {
+        return $this->getSiteTransient($transient_name) !== false;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function deleteSiteTransient(string $transientName): void
     {
         $transientName = $this->prefixTransientName($transientName);
