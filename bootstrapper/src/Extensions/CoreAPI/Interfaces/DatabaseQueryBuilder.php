@@ -33,13 +33,15 @@ interface DatabaseQueryBuilder
      */
     public function whereNotNull(string|array $column): self;
     /**
+     * @param string|array<string> $column
      * @param array<mixed> $values
      */
-    public function whereIn(string $column, array $values): self;
+    public function whereIn(string|array $column, array $values): self;
     /**
+     * @param string|array<string> $column
      * @param array<mixed> $values
      */
-    public function whereNotIn(string $column, array $values): self;
+    public function whereNotIn(string|array $column, array $values): self;
     /**
      * @param Closure(DatabaseQueryBuilder): void $callback
      */

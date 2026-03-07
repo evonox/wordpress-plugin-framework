@@ -157,73 +157,68 @@ class DB implements DatabaseQueryBuilder
     }
 
     /**
+     * @param string|array<string> $column
      * @param array<mixed> $values
      */
-    public function whereIn(string $column, array $values): self
+    public function whereIn(string|array $column, array $values): self
     {
-        if (! $this->whereKWAdded) {
-            $this->builder->keyword("WHERE");
-            $this->whereKWAdded = true;
-        }
-        $this->builder->identifier($column)
+        $this->ensureWhereClause();
+        $this->writeColumnName($column);
+        $this->builder
             ->keyword("IN (")
             ->list($values, ",", function ($builder, $value) {
                 $builder->value($value);
             })
-            ->keyword(")");
+            ->raw(")");
 
         return $this;
     }
 
     /**
+     * @param string|array<string> $column
      * @param array<mixed> $values
      */
-    public function whereNotIn(string $column, array $values): self
+    public function whereNotIn(string|array $column, array $values): self
     {
-        if (! $this->whereKWAdded) {
-            $this->builder->keyword("WHERE");
-            $this->whereKWAdded = true;
-        }
-        $this->builder->identifier($column)
+        $this->ensureWhereClause();
+        $this->writeColumnName($column);
+        $this->builder
             ->keyword("NOT IN (")
             ->list($values, ",", function ($builder, $value) {
                 $builder->value($value);
             })
-            ->keyword(")");
+            ->raw(")");
 
         return $this;
     }
 
     /**
-     * @param Closure(SQLQueryBuilder): void $callback
+     * @param Closure(DatabaseQueryBuilder): void $callback
      */
     public function whereExists(Closure $callback): self
     {
-        if (! $this->whereKWAdded) {
-            $this->builder->keyword("WHERE");
-            $this->whereKWAdded = true;
-        }
-        $this->builder->keyword("EXISTS");
-        $callback($this->builder);
+        $this->ensureWhereClause();
+        $this->builder->keyword("EXISTS")->raw("(");
+        $callback($this);
+        $this->builder->raw(")");
         return $this;
     }
 
     /**
-     * @param Closure(SQLQueryBuilder): void $callback
+     * @param Closure(DatabaseQueryBuilder): void $callback
      */
     public function whereNotExists(Closure $callback): self
     {
-        if (! $this->whereKWAdded) {
-            $this->builder->keyword("WHERE");
-            $this->whereKWAdded = true;
-        }
-        $this->builder->keyword("NOT EXISTS");
-        $callback($this->builder);
+        $this->ensureWhereClause();
+        $this->builder->keyword("NOT EXISTS")->raw("(");
+        $callback($this);
+        $this->builder->raw(")");
         return $this;
     }
 
     public function not(): self
     {
+        $this->ensureWhereClause();
         $this->builder->keyword("NOT");
         return $this;
     }
@@ -240,13 +235,13 @@ class DB implements DatabaseQueryBuilder
         return $this;
     }
     /**
-     * @param Closure(SQLQueryBuilder): void $callback
+     * @param Closure(DatabaseQueryBuilder): void $callback
      */
     public function inParen(Closure $callback): self
     {
-        $this->builder->keyword("(");
-        $callback($this->builder);
-        $this->builder->keyword(")");
+        $this->builder->raw("(");
+        $callback($this);
+        $this->builder->raw(")");
         return $this;
     }
 

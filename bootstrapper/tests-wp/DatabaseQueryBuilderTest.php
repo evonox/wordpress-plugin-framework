@@ -112,4 +112,63 @@ class DatabaseQueryBuilderTest extends TestCase
         $sql = DB::get()->whereNotNull(["table", "column"])->getSQL();
         $this->assertEquals("WHERE `table` . `column` IS NOT NULL ", $sql);
     }
+
+    public function testWhereInClause()
+    {
+        $sql = DB::get()->whereIn("column", [1,2,3])->getSQL();
+        $this->assertEquals("WHERE `column` IN ( 1 , 2 , 3 ) ", $sql);
+    }
+
+    public function testWhereNotInClause()
+    {
+        $sql = DB::get()->whereNotIn("column", ["1","2","3"])->getSQL();
+        $this->assertEquals("WHERE `column` NOT IN ( '1' , '2' , '3' ) ", $sql);
+    }
+
+    public function testWhereExistsClause()
+    {
+        $sql = DB::get()->whereExists(
+            fn ($b) => $b->select("id")->from("::table")
+        )->getSQL();
+        $this->assertEquals("WHERE EXISTS ( SELECT `id` FROM `{$this->prefix}table` ) ", $sql);
+    }
+
+    public function testWhereNotExistsClause()
+    {
+        $sql = DB::get()->whereNotExists(
+            fn ($b) => $b->select(["id", "ids"])->from("::table")
+        )->getSQL();
+        $this->assertEquals("WHERE NOT EXISTS ( SELECT `id` AS `ids` FROM `{$this->prefix}table` ) ", $sql);
+    }
+
+    public function testNotOperator()
+    {
+        $sql = DB::get()->not()->where("column", "=", 1)->getSQL();
+        $this->assertEquals("WHERE NOT `column` = 1 ", $sql);
+    }
+
+    public function testOrOperator()
+    {
+        $sql = DB::get()->where("column", "=", 1)
+            ->or()->where("column", "=", 2)
+            ->getSQL();
+        $this->assertEquals("WHERE `column` = 1 OR `column` = 2 ", $sql);
+    }
+
+    public function testAndOperator()
+    {
+        $sql = DB::get()->where("column", "=", 1)
+            ->and()->where("column", "=", 2)
+            ->getSQL();
+        $this->assertEquals("WHERE `column` = 1 AND `column` = 2 ", $sql);
+    }
+
+    public function testNestedParenthesis()
+    {
+        $sql = DB::get()->whereNull("column")->and()
+        ->inParen(function ($b) {
+            return $b->where("column", "=", 1)->or()->where("column", "=", 2);
+        })->getSQL();
+        $this->assertEquals("WHERE `column` IS NULL AND ( `column` = 1 OR `column` = 2 ) ", $sql);
+    }
 }
