@@ -31,7 +31,7 @@ class DatabaseQueryBuilderTest extends TestCase
 
     public function testSelectClause3()
     {
-        $sql = DB::get()->select(["columnA","A"], "columnB", "columnC")->getSQL();
+        $sql = DB::get()->select(["columnA", "A"], "columnB", "columnC")->getSQL();
         $this->assertEquals("SELECT `columnA` AS `A` , `columnB` , `columnC` ", $sql);
     }
 
@@ -115,20 +115,20 @@ class DatabaseQueryBuilderTest extends TestCase
 
     public function testWhereInClause()
     {
-        $sql = DB::get()->whereIn("column", [1,2,3])->getSQL();
+        $sql = DB::get()->whereIn("column", [1, 2, 3])->getSQL();
         $this->assertEquals("WHERE `column` IN ( 1 , 2 , 3 ) ", $sql);
     }
 
     public function testWhereNotInClause()
     {
-        $sql = DB::get()->whereNotIn("column", ["1","2","3"])->getSQL();
+        $sql = DB::get()->whereNotIn("column", ["1", "2", "3"])->getSQL();
         $this->assertEquals("WHERE `column` NOT IN ( '1' , '2' , '3' ) ", $sql);
     }
 
     public function testWhereExistsClause()
     {
         $sql = DB::get()->whereExists(
-            fn ($b) => $b->select("id")->from("::table")
+            fn($b) => $b->select("id")->from("::table")
         )->getSQL();
         $this->assertEquals("WHERE EXISTS ( SELECT `id` FROM `{$this->prefix}table` ) ", $sql);
     }
@@ -136,7 +136,7 @@ class DatabaseQueryBuilderTest extends TestCase
     public function testWhereNotExistsClause()
     {
         $sql = DB::get()->whereNotExists(
-            fn ($b) => $b->select(["id", "ids"])->from("::table")
+            fn($b) => $b->select(["id", "ids"])->from("::table")
         )->getSQL();
         $this->assertEquals("WHERE NOT EXISTS ( SELECT `id` AS `ids` FROM `{$this->prefix}table` ) ", $sql);
     }
@@ -166,9 +166,9 @@ class DatabaseQueryBuilderTest extends TestCase
     public function testNestedParenthesis()
     {
         $sql = DB::get()->whereNull("column")->and()
-        ->inParen(function ($b) {
-            return $b->where("column", "=", 1)->or()->where("column", "=", 2);
-        })->getSQL();
+            ->inParen(function ($b) {
+                return $b->where("column", "=", 1)->or()->where("column", "=", 2);
+            })->getSQL();
         $this->assertEquals("WHERE `column` IS NULL AND ( `column` = 1 OR `column` = 2 ) ", $sql);
     }
 
@@ -212,5 +212,57 @@ class DatabaseQueryBuilderTest extends TestCase
     {
         $sql = DB::get()->limit(10, 5)->getSQL();
         $this->assertEquals("LIMIT 10 OFFSET 5 ", $sql);
+    }
+
+    public function testCountFunction()
+    {
+        $query = DB::get()->select("option_id")->from("::options");
+        $query->count();
+        $sql = $query->getSQL();
+        $this->assertEquals("SELECT COUNT(*) FROM ( SELECT `option_id` FROM `{$this->prefix}options`  ) AS q ", $sql);
+    }
+
+    public function testSumFunction()
+    {
+        $query = DB::get()->select("option_id")->from("::options");
+        $query->sum("option_id");
+        $sql = $query->getSQL();
+        $this->assertEquals(
+            "SELECT SUM(q. `option_id` ) FROM ( SELECT `option_id` FROM `{$this->prefix}options`  ) AS q ",
+            $sql
+        );
+    }
+
+    public function testAvgFunction()
+    {
+        $query = DB::get()->select("option_id")->from("::options");
+        $query->avg("option_id");
+        $sql = $query->getSQL();
+        $this->assertEquals(
+            "SELECT AVG(q. `option_id` ) FROM ( SELECT `option_id` FROM `{$this->prefix}options`  ) AS q ",
+            $sql
+        );
+    }
+
+    public function testMinFunction()
+    {
+        $query = DB::get()->select("option_id")->from("::options");
+        $query->min("option_id");
+        $sql = $query->getSQL();
+        $this->assertEquals(
+            "SELECT MIN(q. `option_id` ) FROM ( SELECT `option_id` FROM `{$this->prefix}options`  ) AS q ",
+            $sql
+        );
+    }
+
+    public function testMaxFunction()
+    {
+        $query = DB::get()->select("option_id")->from("::options");
+        $query->max("option_id");
+        $sql = $query->getSQL();
+        $this->assertEquals(
+            "SELECT MAX(q. `option_id` ) FROM ( SELECT `option_id` FROM `{$this->prefix}options`  ) AS q ",
+            $sql
+        );
     }
 }

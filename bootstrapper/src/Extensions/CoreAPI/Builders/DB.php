@@ -322,54 +322,66 @@ class DB implements DatabaseQueryBuilder
     public function count(): int
     {
         $sql = $this->builder->getSQL();
-        $builder = new SQLQueryBuilder();
-        $builder->keyword("SELECT COUNT(*) FROM (")->keyword($sql)->keyword(") AS q");
+        $this->builder = new SQLQueryBuilder();
+        $this->builder->keyword("SELECT COUNT(*) FROM (")->raw($sql)->keyword(") AS q");
         return $this->fetchSingleOrFail();
     }
 
-    public function sum(string $column): int
+    /**
+     * @param string|array<string> $column
+     */
+    public function sum(string|array $column): float
     {
         $sql = $this->builder->getSQL();
-        $builder = new SQLQueryBuilder();
-        $builder->keyword("SELECT SUM(q.")
+        $this->builder = new SQLQueryBuilder();
+        $this->builder->keyword("SELECT SUM(q.")
             ->identifier($column)
             ->keyword(") FROM (")
-            ->keyword($sql)
+            ->raw($sql)
             ->keyword(") AS q");
         return $this->fetchSingleOrFail();
     }
 
-    public function avg(string $column): int
+    /**
+     * @param string|array<string> $column
+     */
+    public function avg(string|array $column): float
     {
         $sql = $this->builder->getSQL();
-        $builder = new SQLQueryBuilder();
-        $builder->keyword("SELECT AVG(q.")
+        $this->builder = new SQLQueryBuilder();
+        $this->builder->keyword("SELECT AVG(q.")
             ->identifier($column)
             ->keyword(") FROM (")
-            ->keyword($sql)
+            ->raw($sql)
             ->keyword(") AS q");
         return $this->fetchSingleOrFail();
     }
-    public function min(string $column): int
+    /**
+     * @param string|array<string> $column
+     */
+    public function min(string|array $column): float
     {
         $sql = $this->builder->getSQL();
-        $builder = new SQLQueryBuilder();
-        $builder->keyword("SELECT MIN(q.")
+        $this->builder = new SQLQueryBuilder();
+        $this->builder->keyword("SELECT MIN(q.")
             ->identifier($column)
             ->keyword(") FROM (")
-            ->keyword($sql)
+            ->raw($sql)
             ->keyword(") AS q");
         return $this->fetchSingleOrFail();
     }
 
-    public function max(string $column): int
+    /**
+     * @param string|array<string> $column
+     */
+    public function max(string|array $column): float
     {
         $sql = $this->builder->getSQL();
-        $builder = new SQLQueryBuilder();
-        $builder->keyword("SELECT MAX(q.")
+        $this->builder = new SQLQueryBuilder();
+        $this->builder->keyword("SELECT MAX(q.")
             ->identifier($column)
             ->keyword(") FROM (")
-            ->keyword($sql)
+            ->raw($sql)
             ->keyword(") AS q");
         return $this->fetchSingleOrFail();
     }

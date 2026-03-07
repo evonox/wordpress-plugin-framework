@@ -81,10 +81,23 @@ interface DatabaseQueryBuilder
     public function limit(int $limit, int $offset = 0): self;
 
     public function count(): int;
-    public function sum(string $column): int;
-    public function avg(string $column): int;
-    public function min(string $column): int;
-    public function max(string $column): int;
+    /**
+     * @param string|array<string> $column
+     */
+    public function sum(string|array $column): float;
+    /**
+     * @param string|array<string> $column
+     */
+    public function avg(string|array $column): float;
+    /**
+     * @param string|array<string> $column
+     */
+    public function min(string|array $column): float;
+    /**
+     * @param string|array<string> $column
+     */
+    public function max(string|array $column): float;
+
     /**
      * @return array<int, array<string, mixed>>
      */
