@@ -58,13 +58,25 @@ interface DatabaseQueryBuilder
      */
     public function inParen(Closure $callback): self;
     /**
+     * @param string|array<string> $columns
+     */
+    public function groupBy(string|array ...$columns): self;
+    /**
      * @param string|array<string> $column
      */
-    public function groupBy(string|array $column): self;
-    public function orderBy(string $column, string $order = "ASC"): self;
-    public function having(string $column, string $operator, mixed $value): self;
-    public function havingNull(string $column): self;
-    public function havingNotNull(string $column): self;
+    public function orderBy(string|array $column, string $order = "ASC"): self;
+    /**
+     * @param string|array<string> $column
+     */
+    public function having(string|array $column, string $operator, mixed $value): self;
+    /**
+     * @param string|array<string> $column
+     */
+    public function havingNull(string|array $column): self;
+    /**
+     * @param string|array<string> $column
+     */
+    public function havingNotNull(string|array $column): self;
 
     public function limit(int $limit, int $offset = 0): self;
 

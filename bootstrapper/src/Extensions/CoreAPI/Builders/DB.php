@@ -246,18 +246,20 @@ class DB implements DatabaseQueryBuilder
     }
 
     /**
-     * @param string|array<string> $column
+     * @param string|array<string> $columns
      */
-    public function groupBy(string|array $column): self
+    public function groupBy(string|array ...$columns): self
     {
-        if (is_string($column)) {
-            $column = [$column];
-        }
-        $this->builder->keyword("GROUP BY")->identifierList($column);
+        $this->builder->keyword("GROUP BY")->list($columns, ",", function ($b, $column) {
+            $this->writeColumnName($column);
+        });
         return $this;
     }
 
-    public function orderBy(string $column, string $order = "ASC"): self
+    /**
+     * @param string|array<string> $column
+     */
+    public function orderBy(string|array $column, string $order = "ASC"): self
     {
         if (!$this->orderByKWAdded) {
             $this->builder->keyword("ORDER BY");
@@ -265,38 +267,50 @@ class DB implements DatabaseQueryBuilder
         } else {
             $this->builder->keyword(",");
         }
-        $this->builder->identifier($column)->keyword($order);
+        $this->writeColumnName($column);
+        $this->builder->keyword($order);
         return $this;
     }
 
-    public function having(string $column, string $operator, mixed $value): self
+    /**
+     * @param string|array<string> $column
+     */
+    public function having(string|array $column, string $operator, mixed $value): self
+    {
+        $this->ensureHavingClause();
+        $this->writeColumnName($column);
+        $this->builder->raw($operator)->value($value);
+        return $this;
+    }
+
+    /**
+     * @param string|array<string> $column
+     */
+    public function havingNull(string|array $column): self
+    {
+        $this->ensureHavingClause();
+        $this->writeColumnName($column);
+        $this->builder->keyword("IS NULL");
+        return $this;
+    }
+
+    /**
+     * @param string|array<string> $column
+     */
+    public function havingNotNull(string|array $column): self
+    {
+        $this->ensureHavingClause();
+        $this->writeColumnName($column);
+        $this->builder->keyword("IS NOT NULL");
+        return $this;
+    }
+
+    private function ensureHavingClause(): void
     {
         if (!$this->havingKWAdded) {
             $this->builder->keyword("HAVING");
             $this->havingKWAdded = true;
         }
-        $this->builder->identifier($column)->keyword($operator)->value($value);
-        return $this;
-    }
-
-    public function havingNull(string $column): self
-    {
-        if (!$this->havingKWAdded) {
-            $this->builder->keyword("HAVING");
-            $this->havingKWAdded = true;
-        }
-        $this->builder->identifier($column)->keyword("IS NULL");
-        return $this;
-    }
-
-    public function havingNotNull(string $column): self
-    {
-        if (!$this->havingKWAdded) {
-            $this->builder->keyword("HAVING");
-            $this->havingKWAdded = true;
-        }
-        $this->builder->identifier($column)->keyword("IS NOT NULL");
-        return $this;
     }
 
     public function limit(int $limit, int $offset = 0): self

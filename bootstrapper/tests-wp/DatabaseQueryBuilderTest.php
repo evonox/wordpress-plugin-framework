@@ -171,4 +171,46 @@ class DatabaseQueryBuilderTest extends TestCase
         })->getSQL();
         $this->assertEquals("WHERE `column` IS NULL AND ( `column` = 1 OR `column` = 2 ) ", $sql);
     }
+
+    public function testGroupByClause()
+    {
+        $sql = DB::get()->groupBy("column", ["table", "column2"])->getSQL();
+        $this->assertEquals("GROUP BY `column` , `table` . `column2` ", $sql);
+    }
+
+    public function testOrderByClause()
+    {
+        $sql = DB::get()->orderBy("column")->orderBy(["table", "column2"], "DESC")->getSQL();
+        $this->assertEquals("ORDER BY `column` ASC , `table` . `column2` DESC ", $sql);
+    }
+
+    public function testHavingClause()
+    {
+        $sql = DB::get()->having("column", "=", false)->getSQL();
+        $this->assertEquals("HAVING `column` = 0 ", $sql);
+    }
+
+    public function testHavingClause2()
+    {
+        $sql = DB::get()->having(["table", "column"], "<>", 5)->getSQL();
+        $this->assertEquals("HAVING `table` . `column` <> 5 ", $sql);
+    }
+
+    public function testHavingNullClause()
+    {
+        $sql = DB::get()->havingNull("column")->getSQL();
+        $this->assertEquals("HAVING `column` IS NULL ", $sql);
+    }
+
+    public function testHavingNotNullClause()
+    {
+        $sql = DB::get()->havingNotNull("column")->getSQL();
+        $this->assertEquals("HAVING `column` IS NOT NULL ", $sql);
+    }
+
+    public function testLimitClause()
+    {
+        $sql = DB::get()->limit(10, 5)->getSQL();
+        $this->assertEquals("LIMIT 10 OFFSET 5 ", $sql);
+    }
 }
