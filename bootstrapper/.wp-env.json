@@ -1,6 +1,8 @@
 {
     "plugins": [
-        "./src"
+        "./src",
+        "https://downloads.wordpress.org/plugin/query-monitor.latest-stable.zip",
+        "https://downloads.wordpress.org/plugin/pexlechris-adminer.4.3.2.zip"
     ],
     "mappings": {
         "wp-content/plugins/src/vendor": "./vendor",
@@ -12,11 +14,5 @@
         "WP_DEBUG": true,
         "WP_DEBUG_LOG": true,
         "SCRIPT_DEBUG": true
-    },
-    "env": {
-        "tests": {
-            "phpVersion": "8.4",
-            "core": "WordPress/WordPress#6.9"
-        }
     }
 }
