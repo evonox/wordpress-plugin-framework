@@ -52,7 +52,9 @@ class SQLQueryBuilder
 
     public function identifier(string $value): self
     {
-        $this->appendContent("`$value`");
+        $value = preg_replace('/[^A-Za-z_0-9]/', "", $value);
+        $value = "`" . $value . "`";
+        $this->appendContent("$value");
         return $this;
     }
 
@@ -69,6 +71,13 @@ class SQLQueryBuilder
         }
         return $this;
     }
+
+    public function raw(string $value): self
+    {
+        $this->appendContent($value);
+        return $this;
+    }
+
 
     public function finalize(): void
     {

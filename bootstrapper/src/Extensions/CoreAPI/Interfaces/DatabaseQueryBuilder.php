@@ -6,18 +6,32 @@ use Closure;
 
 interface DatabaseQueryBuilder
 {
+    public function getSQL(): string;
     /**
-     * @param string|array<string, string> $columns
+     * @param string|array<string> $columns
      */
     public function select(string|array ...$columns): self;
     public function from(string $table, ?string $alias = null): self;
     public function join(string $table, ?string $alias = null): self;
     public function leftJoin(string $table, ?string $alias = null): self;
     public function rightJoin(string $table, ?string $alias = null): self;
-    public function on(string $column1, string $column2): self;
-    public function where(string $column, string $operator, mixed $value): self;
-    public function whereNull(string $column): self;
-    public function whereNotNull(string $column): self;
+    /**
+     * @param string|array<string> $column1
+     * @param string|array<string> $column2
+     */
+    public function on(string|array $column1, string|array $column2): self;
+    /**
+     * @param string|array<string> $column
+     */
+    public function where(string|array $column, string $operator, mixed $value): self;
+    /**
+     * @param string|array<string> $column
+     */
+    public function whereNull(string|array $column): self;
+    /**
+     * @param string|array<string> $column
+     */
+    public function whereNotNull(string|array $column): self;
     /**
      * @param array<mixed> $values
      */

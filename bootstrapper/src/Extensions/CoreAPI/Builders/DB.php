@@ -2,6 +2,7 @@
 
 namespace __PLUGIN__\Extensions\CoreAPI\Builders;
 
+use __PLUGIN__\Extensions\CoreAPI\Exceptions\RuntimeApiException;
 use __PLUGIN__\Extensions\CoreAPI\Interfaces\DatabaseAPI;
 use __PLUGIN__\Extensions\CoreAPI\Interfaces\DatabaseQueryBuilder;
 use __PLUGIN__\Framework\DI\Container;
@@ -26,95 +27,132 @@ class DB implements DatabaseQueryBuilder
         $this->builder = new SQLQueryBuilder();
     }
 
+    public function getSQL(): string
+    {
+        return $this->builder->getSQL();
+    }
+
     /**
      * @param string|array<string> $columns
      */
     public function select(string|array ...$columns): self
     {
         $this->builder->keyword("SELECT");
+
+        $firstIteration = true;
         foreach ($columns as $column) {
+            if (! $firstIteration) {
+                $this->builder->keyword(",");
+            } else {
+                $firstIteration = false;
+            }
+
             if (is_string($column)) {
                 $this->builder->identifier($column);
-            } elseif (is_array($column)) {
+            // @phpstan-ignore function.alreadyNarrowedType
+            } elseif (is_array($column) && count($column) === 2) {
                 $this->builder->identifier($column[0])->keyword("AS")->identifier($column[1]);
+            } else {
+                throw new RuntimeApiException("Column must be a string or array of two strings.");
             }
         }
+
         return $this;
     }
 
     public function from(string $table, ?string $alias = null): self
     {
-        $table = $this->databaseAPI->escapeTableName($table);
-        $this->builder->keyword("FROM")->identifier($table);
-        if ($alias !== null) {
-            $this->builder->keyword("AS")->identifier($alias);
-        }
+        $this->builder->keyword("FROM");
+        $this->writeTableWithAlias($table, $alias);
         return $this;
     }
 
     public function join(string $table, ?string $alias = null): self
     {
-        $table = $this->databaseAPI->escapeTableName($table);
-        $this->builder->keyword("JOIN")->identifier($table);
-        if ($alias !== null) {
-            $this->builder->keyword("AS")->identifier($alias);
-        }
+        $this->builder->keyword("JOIN");
+        $this->writeTableWithAlias($table, $alias);
         return $this;
     }
 
     public function leftJoin(string $table, ?string $alias = null): self
     {
-        $table = $this->databaseAPI->escapeTableName($table);
-        $this->builder->keyword("LEFT JOIN")->identifier($table);
-        if ($alias !== null) {
-            $this->builder->keyword("AS")->identifier($alias);
-        }
+        $this->builder->keyword("LEFT JOIN");
+        $this->writeTableWithAlias($table, $alias);
         return $this;
     }
 
     public function rightJoin(string $table, ?string $alias = null): self
     {
+        $this->builder->keyword("RIGHT JOIN");
+        $this->writeTableWithAlias($table, $alias);
+        return $this;
+    }
+
+    private function writeTableWithAlias(string $table, ?string $alias = null): self
+    {
         $table = $this->databaseAPI->escapeTableName($table);
-        $this->builder->keyword("RIGHT JOIN")->identifier($table);
+        $this->builder->raw($table);
         if ($alias !== null) {
-            $this->builder->keyword("AS")->identifier($alias);
+            $this->builder->raw("AS")->identifier($alias);
         }
         return $this;
     }
 
-    public function on(string $column1, string $column2): self
+    /**
+     * @param string|array<string> $column
+     */
+    private function writeColumnName(array|string $column): self
     {
-        $this->builder->keyword("ON")->identifier($column1)->keyword("=")->identifier($column2);
+        if (is_string($column)) {
+            $this->builder->identifier($column);
+        // @phpstan-ignore function.alreadyNarrowedType
+        } elseif (is_array($column) && count($column) === 2) {
+            $this->builder->identifier($column[0])->raw(".")->identifier($column[1]);
+        } else {
+            throw new RuntimeApiException("Column name must be a string or array of strings");
+        }
         return $this;
     }
 
-    public function where(string $column, string $operator, mixed $value): self
+    public function on(string|array $column1, string|array $column2): self
+    {
+        $this->builder->keyword("ON");
+        $this->writeColumnName($column1);
+        $this->builder->raw("=");
+        $this->writeColumnName($column2);
+        return $this;
+    }
+
+    private function ensureWhereClause(): self
     {
         if (! $this->whereKWAdded) {
             $this->builder->keyword("WHERE");
             $this->whereKWAdded = true;
         }
-        $this->builder->identifier($column)->keyword($operator)->value($value);
         return $this;
     }
 
-    public function whereNull(string $column): self
+    public function where(string|array $column, string $operator, mixed $value): self
     {
-        if (! $this->whereKWAdded) {
-            $this->builder->keyword("WHERE");
-            $this->whereKWAdded = true;
-        }
-        $this->builder->identifier($column)->keyword("IS NULL");
+        $this->ensureWhereClause();
+        $this->writeColumnName($column);
+        $this->builder->raw($operator)->value($value);
         return $this;
     }
 
-    public function whereNotNull(string $column): self
+    public function whereNull(string|array $column): self
     {
-        if (! $this->whereKWAdded) {
-            $this->builder->keyword("WHERE");
-            $this->whereKWAdded = true;
-        }
-        $this->builder->identifier($column)->keyword("IS NOT NULL");
+        $this->ensureWhereClause();
+        $this->writeColumnName($column);
+        $this->builder->keyword("IS NULL");
+        return $this;
+    }
+
+    public function whereNotNull(string|array $column): self
+    {
+        $this->ensureWhereClause();
+        $this->writeColumnName($column);
+        $this->builder->keyword("IS NOT NULL");
         return $this;
     }
 
@@ -334,7 +372,6 @@ class DB implements DatabaseQueryBuilder
     {
         $sql = $this->builder->getSQL();
         $results = $this->databaseAPI->query($sql);
-        $this->builder = new SQLQueryBuilder();
         return $results;
     }
 
@@ -382,7 +419,6 @@ class DB implements DatabaseQueryBuilder
     {
         $sql = $this->builder->getSQL();
         $this->databaseAPI->execute($sql);
-        $this->builder = new SQLQueryBuilder();
     }
 
     public function getInsertId(): int

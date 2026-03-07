@@ -24,7 +24,7 @@ class DatabaseAdapter extends AdapterBase implements DatabaseAPI
     public function escapeIdentifier(string $identifier): string
     {
         global $wpdb;
-        return $wpdb->escape_identifiers($identifier);
+        return $wpdb->prepare("%i", $identifier);
     }
 
     /**
