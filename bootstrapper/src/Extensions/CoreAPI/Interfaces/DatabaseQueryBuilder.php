@@ -120,7 +120,7 @@ interface DatabaseQueryBuilder
     public function commit(): void;
     public function rollback(): void;
     /**
-     * @param Closure(DatabaseQueryBuilder): void $callback
+     * @param Closure(): void $callback
      */
     public function inTransaction(Closure $callback): void;
 

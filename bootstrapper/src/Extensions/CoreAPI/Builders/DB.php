@@ -444,37 +444,37 @@ class DB implements DatabaseQueryBuilder
 
     public function getInsertId(): int
     {
-        return $this->query("SELECT LAST_INSERT_ID()")->fetchSingleOrFail();
+        return DB::get()->query("SELECT LAST_INSERT_ID()")->fetchSingleOrFail();
     }
 
     public function getAffectedRows(): int
     {
-        return $this->query("SELECT ROW_COUNT()")->fetchSingleOrFail();
+        return DB::get()->query("SELECT ROW_COUNT()")->fetchSingleOrFail();
     }
 
     public function startTransaction(): void
     {
-        $this->query("START TRANSACTION")->execute();
+        DB::get()->query("START TRANSACTION")->execute();
     }
 
     public function commit(): void
     {
-        $this->query("COMMIT")->execute();
+        DB::get()->query("COMMIT")->execute();
     }
 
     public function rollback(): void
     {
-        $this->query("ROLLBACK")->execute();
+        DB::get()->query("ROLLBACK")->execute();
     }
 
     /**
-     * @param Closure(DatabaseQueryBuilder): void $callback
+     * @param Closure(): void $callback
      */
     public function inTransaction(Closure $callback): void
     {
         try {
             $this->startTransaction();
-            $callback($this);
+            $callback();
             $this->commit();
         } catch (Throwable $e) {
             $this->rollback();
@@ -485,10 +485,11 @@ class DB implements DatabaseQueryBuilder
     /**
      * @param array<mixed> $params
      */
-    // TODO: ESCAPING PARAMETERS
     public function query(string $query, array $params = []): self
     {
-        $this->builder->keyword($query);
+        global $wpdb;
+        $query = $wpdb->prepare($query, $params);
+        $this->builder->raw($query);
         return $this;
     }
 

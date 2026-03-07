@@ -4,6 +4,7 @@ namespace WPTests;
 
 use __PLUGIN__\Extensions\CoreAPI\Builders\DB;
 use __PLUGIN__\Framework\DI\Container;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 class DatabaseQueryBuilderTest extends TestCase
@@ -264,5 +265,95 @@ class DatabaseQueryBuilderTest extends TestCase
             "SELECT MAX(q. `option_id` ) FROM ( SELECT `option_id` FROM `{$this->prefix}options`  ) AS q ",
             $sql
         );
+    }
+
+    public function testTransaction()
+    {
+        DB::get()->delete("::options", ["option_name" => "option_name"]);
+
+        $startCount = DB::get()->select("option_id")->from("::options")->count();
+        DB::get()->inTransaction(function () {
+            DB::get()->insert("::options", [
+                "option_name" => "option_name",
+                "option_value" => "value"
+            ]);
+        });
+        $endCount = DB::get()->select("option_id")->from("::options")->count();
+
+        $this->assertEquals($startCount + 1, $endCount);
+    }
+
+    public function testTransation2()
+    {
+        DB::get()->delete("::options", ["option_name" => "option_name"]);
+        $startCount = DB::get()->select("option_id")->from("::options")->count();
+        try {
+            DB::get()->inTransaction(function () {
+                DB::get()->insert("::options", [
+                    "option_name" => "option_name",
+                    "option_value" => "value"
+                ]);
+                throw new Exception("Error Message");
+            });
+        } catch (Exception $e) {
+        } finally {
+            $endCount = DB::get()->select("option_id")->from("::options")->count();
+            $this->assertEquals($startCount, $endCount);
+        }
+    }
+
+    public function testTransation3()
+    {
+        DB::get()->delete("::options", ["option_name" => "option_name"]);
+        $startCount = DB::get()->select("option_id")->from("::options")->count();
+        try {
+            DB::get()->inTransaction(function () {
+                DB::get()->insert("::options", [
+                    "option_name" => "option_name",
+                    "option_value" => "value"
+                ]);
+                DB::get()->update(
+                    "::options",
+                    ["option_value" => "value"],
+                    ["option_name" => "option_name"]
+                );
+                throw new Exception("Error Message");
+            });
+        } catch (Exception $e) {
+        } finally {
+            $endCount = DB::get()->select("option_id")->from("::options")->count();
+            $this->assertEquals($startCount, $endCount);
+        }
+    }
+
+    public function testAffectedRows()
+    {
+        DB::get()->delete("::options", ["option_name" => "option_name"]);
+
+        DB::get()->insert("::options", [
+            "option_name" => "option_name",
+            "option_value" => "value"
+        ]);
+
+        $affectedRows = DB::get()->update(
+            "::options",
+            ["option_value" => "value2"],
+            ["option_name" => "option_name"]
+        );
+
+        $this->assertEquals(1, $affectedRows);
+    }
+
+    public function testGetLastInsertID()
+    {
+        DB::get()->delete("::options", ["option_name" => "option_name"]);
+
+        $lastInsertID = DB::get()->insert("::options", [
+            "option_name" => "option_name",
+            "option_value" => "value"
+        ]);
+
+        $testLastInsertID = DB::get()->select("option_id")->from("::options")->max("option_id");
+        $this->assertEquals($lastInsertID, $testLastInsertID);
     }
 }
