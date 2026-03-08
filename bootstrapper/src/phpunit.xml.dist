@@ -5,10 +5,4 @@
             <directory>tests-wp</directory>
         </testsuite>
     </testsuites>
-
-    <source ignoreIndirectDeprecations="true" restrictNotices="true" restrictWarnings="true">
-        <include>
-            <directory suffix=".php">.</directory>
-        </include>
-    </source>
 </phpunit>
