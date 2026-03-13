@@ -18,6 +18,7 @@ interface HttpRequest
     public function getHeader(string $name): array|string|null;
     public function getQueryParam(string $name): string|null;
     public function getPostParam(string $name): string|null;
+    public function getParam(string $name): string|null;
     public function hasCookie(string $name): bool;
     public function getCookie(string $name): string|null;
     /**

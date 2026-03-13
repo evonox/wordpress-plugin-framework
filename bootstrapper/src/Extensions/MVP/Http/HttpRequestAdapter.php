@@ -98,6 +98,21 @@ class HttpRequestAdapter implements HttpRequest
     /**
      * @inheritDoc
      */
+    public function getParam(string $name): string|null
+    {
+        $method = $this->getMethod();
+        if (in_array($method, ["GET", "DELETE"])) {
+            return $this->getQueryParam($name);
+        } elseif (in_array($method, ["POST","PUT", "PATCH"])) {
+            return $this->getPostParam($name);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getRemoteAddr(): string
     {
         return $_SERVER['REMOTE_ADDR'];
