@@ -3,19 +3,24 @@
 namespace __PLUGIN__\Extensions\MVP\Presenter;
 
 use __PLUGIN__\Extensions\MVP\Interfaces\HttpRequest;
+use __PLUGIN__\Extensions\MVP\Templates\Template;
 use __PLUGIN__\Framework\Attributes\Inject;
 use __PLUGIN__\Framework\DI\Container;
+use PHPStan\Type\StringNeverAcceptingObjectWithToStringType;
 
-// TODO: TEMPLATE + SET VIEWMODEL PARAMETERS
 abstract class Component
 {
-    protected HttpRequest $request;
+    #[Inject("HTTP_REQUEST")]
+    public HttpRequest $request;
+
+    #[Inject()]
+    public Template $template;
 
     /**
      * @var array<string, Component>
      */
-    #[Inject("HTTP_REQUEST")]
     protected array $components = [];
+
 
     public function constructInternalComponents(): void
     {
@@ -46,6 +51,11 @@ abstract class Component
         foreach ($this->components as $name => $component) {
             $component->beforeRender();
         }
+    }
+
+    public function render(): string
+    {
+        return $this->template->renderTemplate();
     }
 
     protected function afterRender(): void

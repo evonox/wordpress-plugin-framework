@@ -3,10 +3,10 @@
 namespace __PLUGIN__\Extensions\MVP\Presenter;
 
 use __PLUGIN__\Extensions\MVP\Http\HttpRequestAdapter;
+use __PLUGIN__\Extensions\MVP\Http\HttpResponseAdapter;
 use __PLUGIN__\Extensions\MVP\Interfaces\HttpResponse;
 use __PLUGIN__\Framework\DI\Container;
 
-// TODO: RESPONSE HANDLING FACTORY METHODS
 abstract class Presenter extends Component
 {
     protected ?HttpResponse $response;
@@ -26,12 +26,22 @@ abstract class Presenter extends Component
     public function handleRequest(): void
     {
         $this->onStartup();
-        // TODO: VALIDATION / SANITIZATION / ACCESS RIGHTS CHECK
-        // TODO: ACTION
-        // TODO: SIGNAL
+
+        $this->response = new HttpResponseAdapter();
+        if ($this->checkAccessRights() !== true) {
+            $this->onShutdown();
+
+            $this->response->setStatusCode(401);
+            $this->response->setBody("Not Authorized");
+            $this->response->send();
+        }
+
+        $this->dispatchAction();
+
         $this->beforeRender();
-        // TODO: HANDLE TEMPLATE RENDER + TWIG ENVIRONMENT
+        $this->renderView();
         $this->afterRender();
+
         $this->onShutdown();
         $this->response?->send();
     }
@@ -41,13 +51,26 @@ abstract class Presenter extends Component
         parent::onStartup();
     }
 
+    protected function checkAccessRights(): bool
+    {
+        return true;
+    }
+
+    private function dispatchAction(): void
+    {
+        // TODO: VALIDATION / SANITIZATION / ACCESS RIGHTS CHECK
+        // TODO: ACTION
+    }
+
     protected function beforeRender(): void
     {
         parent::beforeRender();
     }
 
-    public function render(): void
+    public function renderView(): void
     {
+        $content = parent::render();
+        $this->response?->setBody($content);
     }
 
     protected function afterRender(): void
@@ -60,11 +83,15 @@ abstract class Presenter extends Component
         parent::onShutdown();
     }
 
-    protected function downloadFile(string $filePath, string $fileName): void
+    protected function downloadFile(string $filePath, string $fileName, string $mime = "application/octet-stream"): void
     {
+        $this->onShutdown();
+        $this->response?->downloadFile($filePath, $fileName, $mime);
     }
 
     protected function redirect(string $url): void
     {
+        $this->onShutdown();
+        $this->response?->redirect($url);
     }
 }
